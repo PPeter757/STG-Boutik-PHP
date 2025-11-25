@@ -1,0 +1,6 @@
+{
+    "require": {
+        "picqer/php-barcode-generator": "*",
+        "phpmailer/phpmailer": "^7.0"
+    }
+}
