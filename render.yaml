@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: gestion-boutique
+    env: php
+    phpVersion: "8.2"
+    plan: free
+    buildCommand: ""
+    startCommand: "php -S 0.0.0.0:$PORT -t ."
+    envVars:
+      - key: DB_HOST
+        fromService: mysql-db
+        property: connectionString
+      - key: DB_NAME
+        value: gestion_boutique
+      - key: DB_USER
+        value: user
+      - key: DB_PASS
+        value: userpassword
+
+databases:
+  - name: mysql-db
+    plan: free
+    databaseName: gestion_boutique
+    user: user
+    password: userpassword
