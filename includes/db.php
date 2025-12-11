@@ -1,29 +1,29 @@
 <?php
-// includes/db.php
+$url = getenv('DATABASE_URL');
 
-// 🔒 Empêcher l'exécution directe du fichier
-if (basename($_SERVER['PHP_SELF']) === 'db.php') {
-    die("Accès direct interdit.");
+if (!$url) {
+    die("DATABASE_URL is missing.");
 }
 
-// ⚙️ Paramètres de connexion
-$host = 'localhost';       // Hôte du serveur
-$dbname = 'gestion_boutique';      // Nom de ta base de données
-$username = 'root';        // Nom d'utilisateur MySQL (par défaut sur XAMPP)
-$password = '';            // Mot de passe MySQL (vide par défaut sur XAMPP)
+$parts = parse_url($url);
+
+$host = $parts['host'];
+$port = isset($parts['port']) ? $parts['port'] : 5432;
+$user = $parts['user'];
+$pass = $parts['pass'];
+$db   = ltrim($parts['path'], '/');
 
 try {
-    // Connexion avec PDO
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
-    
-    // Mode d'erreur : exception
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    // Mode de récupération par défaut : tableau associatif
-    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-
-} catch (PDOException $e) {
-    // En cas d'erreur de connexion
-    die("Erreur de connexion à la base de données : " . $e->getMessage());
+    $pdo = new PDO(
+        "pgsql:host=$host;port=$port;dbname=$db",
+        $user,
+        $pass,
+        [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+        ]
+    );
+} catch (Exception $e) {
+    die("❌ Connexion PostgreSQL échouée : " . $e->getMessage());
 }
 ?>
