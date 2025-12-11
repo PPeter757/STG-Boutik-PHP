@@ -1,10 +1,12 @@
 <?php
-$databaseUrl = getenv('DATABASE_URL');
+// Récupérer l'URL PostgreSQL depuis Render
+$databaseUrl = getenv("DATABASE_URL");
 
 if (!$databaseUrl) {
-    die("DATABASE_URL not found in environment.");
+    die("❌ DATABASE_URL non détectée. Vérifiez vos variables Render.");
 }
 
+// Parser l'URL Render pour extraire host, user, pass, etc.
 $parts = parse_url($databaseUrl);
 
 $host = $parts['host'];
@@ -13,17 +15,16 @@ $user = $parts['user'];
 $pass = $parts['pass'];
 $db   = ltrim($parts['path'], '/');
 
+// Construire le DSN PostgreSQL compatible PDO
+$dsn = "pgsql:host=$host;port=$port;dbname=$db";
+
 try {
-    $pdo = new PDO(
-        "pgsql:host=$host;port=$port;dbname=$db",
-        $user,
-        $pass,
-        [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-        ]
-    );
-} catch (Exception $e) {
-    die("Erreur de connexion PostgreSQL : " . $e->getMessage());
+    // Connexion PDO PostgreSQL
+    $pdo = new PDO($dsn, $user, $pass, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+    ]);
+
+} catch (PDOException $e) {
+    die("❌ Connexion PostgreSQL échouée : " . $e->getMessage());
 }
 ?>
