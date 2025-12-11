@@ -1,0 +1,9 @@
+oracleJdk-25/
+jdk/
+java/
+*.zip
+*.rar
+*.exe
+*.dll
+vendor/
+node_modules/
