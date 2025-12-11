@@ -1,11 +1,11 @@
 <?php
-$url = getenv('DATABASE_URL');
+$databaseUrl = getenv('DATABASE_URL');
 
-if (!$url) {
-    die("DATABASE_URL is missing.");
+if (!$databaseUrl) {
+    die("DATABASE_URL not found in environment.");
 }
 
-$parts = parse_url($url);
+$parts = parse_url($databaseUrl);
 
 $host = $parts['host'];
 $port = isset($parts['port']) ? $parts['port'] : 5432;
@@ -24,6 +24,6 @@ try {
         ]
     );
 } catch (Exception $e) {
-    die("❌ Connexion PostgreSQL échouée : " . $e->getMessage());
+    die("Erreur de connexion PostgreSQL : " . $e->getMessage());
 }
 ?>
