@@ -123,7 +123,7 @@ $total = $vente['total'] ?? array_sum(array_column($items, 'subtotal'));
         <div class="text-center mb-4">
             <div class="flex items-center justify-center gap-2">
                 <img src="assets/NPH_logo.png" alt="Logo" class="h-10 w-10 object-contain">
-                <h1 class="text-2xl font-bold text-gray-700 uppercase">Ste Germaine</h1>
+                <h1 class="text-2xl font-bold text-gray-700 uppercase">Kay Ste. Germaine</h1>
             </div>
             <p class="text-sm text-gray-500">Tabarre 27, Angle rue T.Auguste & Pierre Paul, Port-au-Prince - Haïti</p>
             <p class="text-sm text-gray-500">Tél : +509 3800-4206</p>
@@ -135,7 +135,7 @@ $total = $vente['total'] ?? array_sum(array_column($items, 'subtotal'));
         <!-- Infos vente et client -->
         <div class="mb-3 text-sm">
             <p><strong>Vente # :</strong> <?= htmlspecialchars($vente['vente_id']) ?></p>
-            <p><strong>Utilisateur : @</strong> <?= htmlspecialchars($vente['username'] ?? ($vente['user_id'] ?? 'N/A')) ?></p>
+            <p><strong>Vendeur : @</strong> <?= htmlspecialchars($vente['username'] ?? ($vente['user_id'] ?? 'N/A')) ?></p>
             <p><strong>Client :</strong> <?= htmlspecialchars(trim(($vente['client_nom'] ?? '') . ' ' . ($vente['client_prenom'] ?? ''))) ?></p>
             <!-- <p><strong>Client :</strong> <?= htmlspecialchars(trim(($vente['client_nom'] ?? '') . ' ' . ($clients['client_prenom'] ?? ''))) ?></p> -->
             <p><strong>Status vente :</strong> <?= htmlspecialchars($vente['status'] ?? '—') ?></p>

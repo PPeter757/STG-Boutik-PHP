@@ -8,7 +8,7 @@ if (basename($_SERVER['PHP_SELF']) === 'db.php') {
 
 // ⚙️ Paramètres de connexion
 $host = 'localhost';       // Hôte du serveur
-$dbname = 'boutique';      // Nom de ta base de données
+$dbname = 'gestion_boutique';      // Nom de ta base de données
 $username = 'root';        // Nom d'utilisateur MySQL (par défaut sur XAMPP)
 $password = '';            // Mot de passe MySQL (vide par défaut sur XAMPP)
 

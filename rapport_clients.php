@@ -184,7 +184,7 @@ $aujourdhui = new DateTime();
                             $diff = $dernier->diff($aujourdhui)->days;
                             $jours_depuis_vente = $diff;
 
-                            if ($diff > 10) {
+                            if ($diff > 30) {
                                 $alerte = "⚠️ Plus de $diff jours impayer";
                                 $ligne_class = 'bg-red-100';
                             } else {
@@ -198,8 +198,8 @@ $aujourdhui = new DateTime();
                             <td class="p-2"><?= htmlspecialchars($c['groupe']) ?></td>
                             <td class="p-2"><?= htmlspecialchars($c['nom'] . ' ' . $c['prenom']) ?></td>
                             <td class="p-2"><?= $c['nb_ventes_credit'] ?></td>
-                            <td class="p-2"><?= $dernier->format('d/m/Y') ?></td>
-                            <td class="p-2 Text-right text-red-600"><?= number_format($c['total_achats_credit'], 2) ?> HTG</td>
+                            <td class="p-2"><?= $dernier->format('d/m/Y H:i') ?></td>
+                            <td class="p-2  text-red-600 text-right"><?= number_format($c['total_achats_credit'], 2) ?> HTG</td>
                             <td class="p-2"><?= $jours_depuis_vente . ' ' . ($jours_depuis_vente < 2 ? 'jour' : 'jours') ?></td>
                             <td class="p-2"><?= $alerte ?></td>
                         </tr>
