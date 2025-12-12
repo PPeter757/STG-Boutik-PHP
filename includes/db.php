@@ -1,5 +1,4 @@
 <?php
-// Connexion PostgreSQL Render
 $host = "dpg-d4th8rpr0fns73deo5ig-a.oregon-postgres.render.com";
 $dbname = "gestion_boutique";
 $user = "gestion_boutique_user";
