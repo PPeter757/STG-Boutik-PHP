@@ -1,26 +1,31 @@
 FROM php:8.2-apache
 
-# Installer les extensions PostgreSQL + outils nécessaires
+# Installer les extensions nécessaires
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     unzip \
+    git \
     && docker-php-ext-install pdo pdo_pgsql
+
+# Installer Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Activer mod_rewrite
 RUN a2enmod rewrite
 
-# Copier le projet
+# Copier le projet avant installation vendor
 COPY . /var/www/html/
 
-# Permissions correctes
+# Installer les dépendances PHP (PHPMailer)
+WORKDIR /var/www/html
+RUN composer install --no-dev --optimize-autoloader
+
+# Permissions
 RUN chown -R www-data:www-data /var/www/html
 
-# Render utilise une variable PORT, pas 80 ni 8080
+# Render port configuration
 ENV PORT=10000
-
-# Forcer Apache à écouter sur $PORT → indispensable Render
 RUN sed -i "s/80/${PORT}/g" /etc/apache2/sites-available/000-default.conf
 RUN echo "Listen ${PORT}" >> /etc/apache2/ports.conf
 
-# Démarrer Apache
 CMD ["apache2-foreground"]
