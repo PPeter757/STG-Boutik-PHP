@@ -6,7 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Désactive le cache
+// Désactiver le cache navigateur
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Pragma: no-cache");
 header("Expires: 0");
@@ -14,7 +14,7 @@ header("Expires: 0");
 // Timeout 10 minutes
 $timeout = 600;
 
-// Inactivité → déconnexion
+// Gestion de l'inactivité
 if (isset($_SESSION['last_activity'])) {
     if (time() - $_SESSION['last_activity'] > $timeout) {
         session_unset();
@@ -25,34 +25,45 @@ if (isset($_SESSION['last_activity'])) {
 }
 $_SESSION['last_activity'] = time();
 
+// ---------------------
+// PROTECTION ACCÈS
+// ---------------------
+
+// Si pas connecté → redirection
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+    header("Location: login.php");
+    exit;
+}
+
+// Charger base de données
 require_once __DIR__ . '/db.php';
 
-// Vérification connexion
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit;
+// Ne recharge l'utilisateur que si pas déjà en session
+if (!isset($_SESSION['user_fetched']) || $_SESSION['user_fetched'] !== true) {
+
+    $stmt = $pdo->prepare("
+        SELECT u.*, r.nom_role 
+        FROM users u
+        LEFT JOIN roles r ON r.role_id = u.role_id
+        WHERE u.user_id = ?
+    ");
+    $stmt->execute([$_SESSION['user_id']]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Si l'utilisateur n'existe plus : déconnexion
+    if (!$user) {
+        session_destroy();
+        header("Location: login.php");
+        exit;
+    }
+
+    // Stockage sécurisé (évite requery chaque page)
+    $_SESSION['username']   = $user['username'];
+    $_SESSION['role_id']    = $user['role_id'];
+    $_SESSION['nom_role']   = strtolower($user['nom_role']);
+    $_SESSION['user_name']  = $user['user_nom'] . ' ' . $user['user_prenom'];
+    $_SESSION['user_photo'] = !empty($user['photo']) ? $user['photo'] : 'avatar.png';
+
+    $_SESSION['user_fetched'] = true;
 }
-
-// Charger utilisateur depuis DB
-$stmt = $pdo->prepare("
-    SELECT u.*, r.nom_role 
-    FROM users u
-    LEFT JOIN roles r ON u.role_id = r.role_id
-    WHERE u.user_id = ?
-");
-$stmt->execute([$_SESSION['user_id']]);
-$user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-// Si l'utilisateur n'existe plus
-if (!$user) {
-    session_destroy();
-    header("Location: login.php");
-    exit;
-}
-
-// Chargement des variables session
-$_SESSION['username']   = $user['username'];
-$_SESSION['user_name']  = $user['user_nom'] . ' ' . $user['user_prenom'];
-$_SESSION['user_photo'] = $user['photo'] ?: 'avatar.png';
-$_SESSION['nom_role']   = strtolower($user['nom_role']);
 ?>
