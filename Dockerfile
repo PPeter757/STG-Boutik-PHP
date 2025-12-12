@@ -1,6 +1,7 @@
+# IMAGE PHP + APACHE
 FROM php:8.2-apache
 
-# Installer dépendances système
+# Installer extensions nécessaires
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     unzip \
@@ -10,26 +11,25 @@ RUN apt-get update && apt-get install -y \
 # Installer Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Définir le dossier de travail
+# Copier les fichiers du projet
+COPY . /var/www/html
+
+# Se déplacer dans le projet
 WORKDIR /var/www/html
 
-# Copier ton projet dans le container
-COPY . .
-
-# Installer dépendances (PHPMailer sera installé ici)
+# Installer automatiquement PHPMailer + vendor
 RUN composer install --no-dev --optimize-autoloader
 
-# Permissions
+# Permissions Apache
 RUN chown -R www-data:www-data /var/www/html
 
 # Activer mod_rewrite
 RUN a2enmod rewrite
 
-# Mettre Apache sur 8080 (Render changera ensuite vers $PORT)
+# Config Render : Apache doit écouter sur 8080
 RUN sed -i "s/80/8080/g" /etc/apache2/ports.conf && \
     sed -i "s/:80>/:8080>/" /etc/apache2/sites-available/000-default.conf
 
 EXPOSE 8080
 
-# Adapter Apache au port Render au runtime
-CMD ["bash", "-c", "sed -i \"s/8080/${PORT}/g\" /etc/apache2/ports.conf /etc/apache2/sites-available/000-default.conf && apache2-foreground"]
+CMD ["apache2-foreground"]
