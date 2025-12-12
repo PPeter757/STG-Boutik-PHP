@@ -1,26 +1,26 @@
 FROM php:8.2-apache
 
-# Installer les extensions nécessaires
+# Installer les extensions PostgreSQL + outils nécessaires
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     unzip \
     && docker-php-ext-install pdo pdo_pgsql
 
-# Activer mod_rewrite si tu utilises des routes
+# Activer mod_rewrite
 RUN a2enmod rewrite
 
-# Copier les fichiers du projet
-COPY . /var/www/html
+# Copier le projet
+COPY . /var/www/html/
 
-# Donner les permissions à Apache
+# Permissions correctes
 RUN chown -R www-data:www-data /var/www/html
 
-# Exposer le port utilisé par Render (⚠ Render n’utilise pas 80 mais $PORT)
-EXPOSE 8080
+# Render utilise une variable PORT, pas 80 ni 8080
+ENV PORT=10000
 
-# Apache doit écouter sur le port Render : $PORT
-ENV PORT=8080
-RUN sed -i "s/80/\${PORT}/g" /etc/apache2/sites-available/000-default.conf
+# Forcer Apache à écouter sur $PORT → indispensable Render
+RUN sed -i "s/80/${PORT}/g" /etc/apache2/sites-available/000-default.conf
+RUN echo "Listen ${PORT}" >> /etc/apache2/ports.conf
 
-# Lancer Apache
+# Démarrer Apache
 CMD ["apache2-foreground"]
