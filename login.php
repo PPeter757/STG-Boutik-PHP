@@ -140,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <style>
     body {
         min-height: 100vh;
-        background: url('assets/Recycle Art.JPG') no-repeat center center fixed;
+        background: url("assets/Recycle Art.JPG") no-repeat center center fixed;
         background-size: cover;
         display: flex;
         justify-content: center;
@@ -152,7 +152,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     body::before {
         content: "";
         position: absolute;
-        inset: 0;
+        top:0; left:0;
+        width:100%; height:100%;
         background: rgba(0,0,0,0.35);
         z-index: 0;
     }
@@ -163,9 +164,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         width: 350px;
         padding: 35px;
         border-radius: 16px;
-        background: rgba(255,255,255,0.25);
+        background: rgba(255, 255, 255, 0.25);
         backdrop-filter: blur(12px);
-        box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+        box-shadow: 0px 4px 30px rgba(0,0,0,0.3);
         text-align: center;
     }
 
@@ -175,6 +176,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         margin-bottom: 15px;
         border-radius: 6px;
         border: 1px solid #ccc;
+        font-size: 15px;
         background: rgba(255,255,255,0.8);
     }
 
@@ -183,9 +185,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         padding: 12px;
         background: #007bff;
         color: white;
+        font-size: 17px;
         border-radius: 6px;
         cursor: pointer;
-        font-size: 17px;
     }
 
     .error {

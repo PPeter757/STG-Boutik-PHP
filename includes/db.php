@@ -5,7 +5,6 @@ $dbname = "gestion_boutique";
 $user = "gestion_boutique_user";
 $pass = "p4hMxXFoaL1ZyhaHVtPeTt74nigPD0bS";
 
-// DSN PDO PostgreSQL
 $dsn = "pgsql:host=$host;port=5432;dbname=$dbname;";
 
 try {
