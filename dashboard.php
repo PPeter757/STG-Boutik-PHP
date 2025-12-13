@@ -57,6 +57,29 @@ $totalVentes = $pdo->query("SELECT COALESCE(SUM(total),0) FROM ventes")->fetchCo
 // Produits faibles (<= 5)
 $produitsFaibles = $pdo->query("SELECT COUNT(*) FROM produits WHERE quantite <= 5")->fetchColumn();
 
+// Notifications dynamiques
+$notifications = [];
+
+// Message de félicitation si ventes > 100000
+if ($totalVentesMois > 100000) {
+  $notifications[] = [
+    'type' => 'success',
+    'message' => "🎉 Félicitations $civilite $user_prenom ! Vos ventes de ce mois dépassent 100 000 HTG."
+  ];
+}
+
+// Alerte stock faible
+$stmtFaibles = $pdo->query("SELECT nom, quantite FROM produits WHERE quantite <= 5");
+$produitsFaiblesList = $stmtFaibles->fetchAll(PDO::FETCH_ASSOC);
+$produitsFaibles = count($produitsFaiblesList);
+
+if ($produitsFaibles > 0) {
+  $notifications[] = [
+    'type' => 'danger',
+    'message' => "⚠️ Attention ! $produitsFaibles produit(s) sont en rupture de stock."
+  ];
+}
+
 // ==========================================
 // 🔹 Derniers produits ajoutés
 // ==========================================
@@ -230,17 +253,16 @@ $totalVentesMois = (float)$stmt->fetchColumn();
          NOTIFICATIONS
     ======================== -->
     <div id="notifications" class="space-y-2 relative h-16 overflow-hidden mt-3">
-
       <?php foreach ($notifications as $n): ?>
         <div class="absolute w-full transition-all p-4 rounded shadow 
-          <?= ($n['type'] === 'danger')
-            ? 'bg-red-100 border-l-4 border-red-500 text-red-700'
-            : 'bg-green-100 border-l-4 border-green-500 text-green-700' ?>">
+    <?= $n['type'] === 'danger'
+          ? 'bg-red-100 border-l-4 border-red-500 text-red-700'
+          : 'bg-green-100 border-l-4 border-green-500 text-green-700' ?>">
           <?= $n['message'] ?>
         </div>
       <?php endforeach; ?>
-
     </div>
+
 
     <!-- =======================
          STATISTIQUES
@@ -514,4 +536,5 @@ $totalVentesMois = (float)$stmt->fetchColumn();
     });
   </script>
 </body>
+
 </html>
