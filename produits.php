@@ -425,57 +425,21 @@ $produits = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     document.getElementById(id).classList.add("hidden");
                     if (html5QrCode) html5QrCode.stop();
                 }
+            // Pré-remplir le formulaire si édition
+            <?php if ($produit_id): ?>
+                openModal('modalProduit');
+                document.getElementById('formProduit').action.value = 'edit';
+                document.getElementById('formProduit').produit_id.value = '<?= htmlspecialchars($produit_id) ?>';
+                document.getElementById('formProduit').nom.value = '<?= htmlspecialchars($nom) ?>';
+                document.getElementById('formProduit').categorie.value = '<?= htmlspecialchars($categorie) ?>';
+                document.getElementById('formProduit').prix_achat.value = '<?= htmlspecialchars($prix_achat) ?>';
+                document.getElementById('formProduit').prix_vente.value = '<?= htmlspecialchars($prix_vente) ?>';
+                document.getElementById('formProduit').quantite.value = '<?= htmlspecialchars($quantite) ?>';
+                document.getElementById('formProduit').dimension.value = '<?= htmlspecialchars($dimension) ?>';
+                document.getElementById('formProduit').code_barre.value = '<?= htmlspecialchars($code_barre) ?>';
+            <?php endif; ?>
 
-                // ✅ Soumission AJAX du produit
-                document.getElementById('formProduit').addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    const formData = new FormData(this);
-
-                    fetch('ajax_produit.php', {
-                            method: 'POST',
-                            body: formData
-                        })
-                        .then(r => r.json())
-                        .then(res => {
-                            // res.message_html contient le HTML complet du message (div avec id='messageBox')
-                            if (res.success) {
-                                // injecte/replace messageBox
-                                const existing = document.getElementById('messageBox');
-                                if (existing) {
-                                    existing.remove();
-                                }
-                                // injecter le html renvoyé
-                                const container = document.createElement('div');
-                                container.innerHTML = res.message_html;
-                                // on insère au-dessus du tableau (juste après le h1 par ex.)
-                                const mainContent = document.querySelector('main .max-w-6xl') || document.querySelector('main');
-                                if (mainContent) {
-                                    mainContent.insertBefore(container.firstElementChild, mainContent.querySelector('div') || mainContent.firstChild);
-                                } else {
-                                    // fallback : body prepend
-                                    document.body.prepend(container.firstElementChild);
-                                }
-
-                                // fermer modal et recharger la liste
-                                closeModal('modalProduit');
-                                loadProduits();
-
-                                // fade out automatique comme ailleurs
-                                setTimeout(() => {
-                                    const msgEl = document.getElementById('messageBox');
-                                    if (!msgEl) return;
-                                    msgEl.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                                    msgEl.style.opacity = '0';
-                                    msgEl.style.transform = 'translateY(-10px)';
-                                    setTimeout(() => msgEl.remove(), 600);
-                                }, 3000);
-
-                            } else {
-                                // cas d'erreur : afficher message d'erreur de la même façon (ou alert si tu préfères)
-                                alert(res.message);
-                            }
-                        })
-                });
+            
             </script>
             <!-- Recherche -->
             <form method="GET" class="mb-4 flex gap-2 items-center">
