@@ -171,7 +171,7 @@ $page = isset($_GET['page']) && is_numeric($_GET['page']) ? intval($_GET['page']
 $offset = ($page - 1) * $perPage;
 
 // Compter le nombre total de ventes pour la pagination
-$count_sql = "SELECT COUNT(*) FROM produits p LEFT JOIN produits c ON p.produit_id = c.produit_id WHERE 1=1";
+$count_sql = "SELECT COUNT(*) FROM produits p WHERE 1=1";
 if (!empty($search_id)) $count_sql .= " AND p.produit_id = :produit_id";
 if ($search !== '') {
     $count_sql .= " AND (p.nom LIKE :search OR p.categorie LIKE :search OR p.code_barre LIKE :search)";
@@ -186,7 +186,7 @@ $count_stmt->execute();
 $totalProduits = $count_stmt->fetchColumn();
 $totalPages = ceil($totalProduits / $perPage);
 // Récupérer les produits avec recherche et pagination
-$sql = "SELECT p.* FROM produits p LEFT JOIN produits c ON p.produit_id = c.produit_id WHERE 1=1";
+$sql = "SELECT p.* FROM produits p WHERE 1=1";
 if (!empty($search_id)) $sql .= " AND p.produit_id = :produit_id";
 if ($search !== '') {
     $sql .= " AND (p.nom LIKE :search OR p.categorie LIKE :search OR p.code_barre LIKE :search)";
@@ -786,23 +786,6 @@ $produits = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     openModal(`editModal${id}`);
                 });
             });
-        }
-
-        function loadProduits(page = 1, search = '') {
-            fetch(`ajax_produits.php?page=${page}&search=${encodeURIComponent(search)}`)
-                .then(res => res.json())
-                .then(data => {
-                    tbody.innerHTML = data.tbody;
-                    paginationDiv.innerHTML = data.pagination;
-                    attachEditButtons();
-
-                    paginationDiv.querySelectorAll('a').forEach(a => {
-                        a.addEventListener('click', e => {
-                            e.preventDefault();
-                            loadProduits(a.dataset.page, search);
-                        });
-                    });
-                });
         }
 
         loadProduits(1, searchInput.value);
