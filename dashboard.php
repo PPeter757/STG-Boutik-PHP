@@ -46,7 +46,7 @@ if ($hour < 12) {
 // --- Statistiques ---
 $totalProduits   = $pdo->query("SELECT COUNT(*) FROM produits")->fetchColumn();
 $totalClients    = $pdo->query("SELECT COUNT(*) FROM clients")->fetchColumn();
-$totalVentes     = $pdo->query("SELECT IFNULL(SUM(total),0) FROM ventes")->fetchColumn();
+$totalVentes = $pdo->query("SELECT COALESCE(SUM(total),0) FROM ventes")->fetchColumn();
 $produitsFaibles = $pdo->query("SELECT COUNT(*) FROM produits WHERE quantite <= 5")->fetchColumn();
 
 // --- Derniers produits ---
@@ -72,11 +72,13 @@ $ventesRecentes = $pdo->query("
    1️⃣ Ventes mensuelles 
    ===================== */
 $query = $pdo->query("
-    SELECT MONTH(date_vente) AS mois, SUM(total) AS total
+    SELECT EXTRACT(MONTH FROM date_vente) AS mois,
+           SUM(total) AS total
     FROM ventes
-    GROUP BY MONTH(date_vente)
+    GROUP BY EXTRACT(MONTH FROM date_vente)
     ORDER BY mois
 ");
+
 
 $labels = [];   // utilisé pour le graphique principal des ventes
 $data   = [];
@@ -110,31 +112,32 @@ foreach ($produitsMarges as $p) {
    3️⃣ Ventes mensuelles par produit 
    ================================ */
 
-$moisLabels       = ["October", "November"]; // comme tu avais
-$ventesParMois    = []; // total par mois
-$produitsParMois  = []; // liste de produits par mois
+$moisLabels = ["October", "November"];
+$ventesParMois = [];
+$produitsParMois = [];
 
 foreach ($moisLabels as $mois) {
 
-  $stmt = $pdo->prepare("
+    $moisNum = date('m', strtotime("1 $mois"));
+
+    $stmt = $pdo->prepare("
         SELECT p.nom AS produit,
                SUM(v.quantite * v.prix_vente) AS total
         FROM ventes ve
         JOIN vente_items v ON ve.vente_id = v.vente_id
         JOIN produits p ON v.produit_id = p.produit_id
-        WHERE MONTH(ve.date_vente) = MONTH(STR_TO_DATE(:mois, '%M'))
+        WHERE EXTRACT(MONTH FROM ve.date_vente) = :mois
           AND LOWER(ve.status) NOT IN ('annulée')
         GROUP BY p.produit_id
     ");
-  $stmt->execute(['mois' => $mois]);
-  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt->execute(['mois' => $moisNum]);
 
-  $totalMois         = array_sum(array_column($result, 'total'));
-  $listeProduitsMois = array_column($result, 'produit');
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-  $ventesParMois[]   = $totalMois;
-  $produitsParMois[] = $listeProduitsMois;
+    $ventesParMois[]   = array_sum(array_column($result, 'total'));
+    $produitsParMois[] = array_column($result, 'produit');
 }
+
 
 /* ================================
    4️⃣ Total ventes du mois courant
@@ -146,10 +149,11 @@ $stmt = $pdo->prepare("
     SELECT COALESCE(SUM(v.quantite * v.prix_vente), 0) AS total_mois
     FROM ventes ve
     JOIN vente_items v ON ve.vente_id = v.vente_id
-    WHERE MONTH(ve.date_vente) = :mois
-      AND YEAR(ve.date_vente)  = :annee
-      AND LOWER(ve.status)    != 'annulée'
+    WHERE EXTRACT(MONTH FROM ve.date_vente) = :mois
+      AND EXTRACT(YEAR  FROM ve.date_vente) = :annee
+      AND LOWER(ve.status) != 'annulée'
 ");
+
 $stmt->execute([
   'mois'   => $moisActuel,
   'annee'  => $anneeActuelle
@@ -191,7 +195,10 @@ $totalVentesMois = (float)$stmt->fetchColumn();
 
     // Calcul des ventes du mois
     $mois_actuel = date('Y-m');
-    $stmtVentes = $pdo->prepare("SELECT SUM(total) AS total_mois FROM ventes WHERE DATE_FORMAT(date_vente, '%Y-%m') = ?");
+    $stmtVentes = $pdo->prepare("SELECT COALESCE(SUM(total),0)
+    FROM ventes
+    WHERE TO_CHAR(date_vente, 'YYYY-MM') = ?
+");
     $stmtVentes->execute([$mois_actuel]);
     $moisActuel = $stmtVentes->fetchColumn() ?: 0;
 
