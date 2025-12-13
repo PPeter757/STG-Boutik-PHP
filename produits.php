@@ -425,21 +425,19 @@ $produits = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     document.getElementById(id).classList.add("hidden");
                     if (html5QrCode) html5QrCode.stop();
                 }
-            // Pré-remplir le formulaire si édition
-            <?php if ($produit_id): ?>
-                openModal('modalProduit');
-                document.getElementById('formProduit').action.value = 'edit';
-                document.getElementById('formProduit').produit_id.value = '<?= htmlspecialchars($produit_id) ?>';
-                document.getElementById('formProduit').nom.value = '<?= htmlspecialchars($nom) ?>';
-                document.getElementById('formProduit').categorie.value = '<?= htmlspecialchars($categorie) ?>';
-                document.getElementById('formProduit').prix_achat.value = '<?= htmlspecialchars($prix_achat) ?>';
-                document.getElementById('formProduit').prix_vente.value = '<?= htmlspecialchars($prix_vente) ?>';
-                document.getElementById('formProduit').quantite.value = '<?= htmlspecialchars($quantite) ?>';
-                document.getElementById('formProduit').dimension.value = '<?= htmlspecialchars($dimension) ?>';
-                document.getElementById('formProduit').code_barre.value = '<?= htmlspecialchars($code_barre) ?>';
-            <?php endif; ?>
-
-            
+                // Pré-remplir le formulaire si édition
+                <?php if ($produit_id): ?>
+                    openModal('modalProduit');
+                    document.getElementById('formProduit').action.value = 'edit';
+                    document.getElementById('formProduit').produit_id.value = '<?= htmlspecialchars($produit_id) ?>';
+                    document.getElementById('formProduit').nom.value = '<?= htmlspecialchars($nom) ?>';
+                    document.getElementById('formProduit').categorie.value = '<?= htmlspecialchars($categorie) ?>';
+                    document.getElementById('formProduit').prix_achat.value = '<?= htmlspecialchars($prix_achat) ?>';
+                    document.getElementById('formProduit').prix_vente.value = '<?= htmlspecialchars($prix_vente) ?>';
+                    document.getElementById('formProduit').quantite.value = '<?= htmlspecialchars($quantite) ?>';
+                    document.getElementById('formProduit').dimension.value = '<?= htmlspecialchars($dimension) ?>';
+                    document.getElementById('formProduit').code_barre.value = '<?= htmlspecialchars($code_barre) ?>';
+                <?php endif; ?>
             </script>
             <!-- Recherche -->
             <form method="GET" class="mb-4 flex gap-2 items-center">
@@ -771,7 +769,8 @@ $produits = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 code,
                 time: now
             };
-            loadProduits(); // ✅ Appel de la fonction globale
+            document.getElementById('code_barre').value = code;
+            beep();
         }
 
         // ---------- SECTION AJAX PRODUITS ----------
@@ -808,10 +807,14 @@ $produits = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         loadProduits(1, searchInput.value);
 
-        document.querySelector('form').addEventListener('submit', e => {
-            e.preventDefault();
-            loadProduits(1, searchInput.value.trim());
-        });
+        const searchForm = document.querySelector('form[method="GET"]');
+        if (searchForm) {
+            searchForm.addEventListener('submit', e => {
+                e.preventDefault();
+                loadProduits(1, searchInput.value.trim());
+            });
+        }
+
 
         // Masquer automatiquement le message après 3 secondes
         const msg = document.getElementById('msg-suppr');
