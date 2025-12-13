@@ -773,32 +773,6 @@ $produits = $stmt->fetchAll(PDO::FETCH_ASSOC);
             beep();
         }
 
-        // ---------- SECTION AJAX PRODUITS ----------
-
-        const tbody = document.getElementById('produits-tbody');
-        const paginationDiv = document.getElementById('produits-pagination');
-        const searchInput = document.querySelector('form input[name="search"]');
-
-        function attachEditButtons() {
-            document.querySelectorAll('button[data-edit]').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const id = btn.dataset.edit;
-                    openModal(`editModal${id}`);
-                });
-            });
-        }
-
-        loadProduits(1, searchInput.value);
-
-        const searchForm = document.querySelector('form[method="GET"]');
-        if (searchForm) {
-            searchForm.addEventListener('submit', e => {
-                e.preventDefault();
-                loadProduits(1, searchInput.value.trim());
-            });
-        }
-
-
         // Masquer automatiquement le message après 3 secondes
         const msg = document.getElementById('msg-suppr');
         if (msg) {
